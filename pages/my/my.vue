@@ -4,9 +4,7 @@
 	</view>
 </template>
 
-<script setup>
-	
-</script>
+<caption></caption>
 
 <style lang="scss">
 

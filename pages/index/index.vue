@@ -2,26 +2,23 @@
 	<view class="content">
 		<image class="logo" src="/static/logo.png"></image>
 		<view class="text-area">
-			<text class="title">{{title}}</text>
 			<up-button text="渐变色按钮" color="linear-gradient(to right, rgb(66, 83, 216), rgb(213, 51, 186))"></up-button>
 		</view>
 	</view>
 </template>
 
-<script>
-	export default {
-		data() {
-			return {
-				title: 'Hello'
-			}
-		},
-		onLoad() {
-
-		},
-		methods: {
-
-		}
-	}
+<script setup>
+	import { getBanner } from '../../api/api';
+	import { onLoad } from '@dcloudio/uni-app'
+	
+	onLoad(() => {
+		getBanner().then(res => {
+			console.log(res, 'res=====')
+		})
+	})
+	
+	
+	
 </script>
 
 <style>
