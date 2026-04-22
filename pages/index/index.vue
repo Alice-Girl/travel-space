@@ -1,19 +1,23 @@
 <template>
 	<view class="content">
-		<image class="logo" src="/static/logo.png"></image>
-		<view class="text-area">
-			<up-button text="渐变色按钮" color="linear-gradient(to right, rgb(66, 83, 216), rgb(213, 51, 186))"></up-button>
-		</view>
+		<up-search placeholder="搜索景点" bg-color="#e3e3e3" v-model="keyword"></up-search>
+	  <up-swiper v-if="bannerList.length" :list=" bannerList" keyName="image" showTitle radius="8" autoplay="true" height="160"></up-swiper>
+		 <up-notice-bar text="项目数据仅展示,非真实数据!"></up-notice-bar>
 	</view>
 </template>
 
 <script setup>
 	import { getBanner } from '../../api/api';
 	import { onLoad } from '@dcloudio/uni-app'
+	import { ref } from 'vue';
+	
+	const keyword = ref()
+	const bannerList = ref([])
 	
 	onLoad(() => {
 		getBanner().then(res => {
 			console.log(res, 'res=====')
+			bannerList.value = res.bannerList
 		})
 	})
 	
@@ -23,10 +27,7 @@
 
 <style>
 	.content {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
+		padding: 20rpx 20rpx;
 	}
 
 	.logo {

@@ -7,7 +7,8 @@ let baseUrl = 'https://m1.apifoxmock.com/m1/4728220-0-default/api'
  * 若需要在外部H5也能访问接口，需要下载mockjs 插件
 **/
 if(process.env.NODE_ENV === 'development') {
-	baseUrl = 'http://localhost:5173/api'
+	// baseUrl = 'http://localhost:5173/api'
+	baseUrl = 'https://m1.apifoxmock.com/m1/4728220-0-default/api'
 } else {
 	baseUrl = 'https://m1.apifoxmock.com/m1/4728220-0-default/api'
 }
