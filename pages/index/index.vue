@@ -43,12 +43,15 @@
 					</template>
 			 </up-waterfall>
 		 </view>
+		 <view v-if="showTopIcon" @click="topTop" class="topClass">
+			 <up-icon name="arrow-upward" color="#fff" size="28"></up-icon>
+		 </view>
 	</view>
 </template>
 
 <script setup>
 	import { getBanner, getHomeList } from '../../api/api';
-	import { onLoad } from '@dcloudio/uni-app'
+	import { onLoad, onReachBottom, onPageScroll } from '@dcloudio/uni-app'
 	import { ref } from 'vue';
 	
 	const keyword = ref()
@@ -56,19 +59,53 @@
 	const uWaterfallRef = ref()
 	const flowList = ref([])
 	
+	// 是否显示 
+	const showTopIcon = ref(false)
+	
 	
 	onLoad(() => {
 		getBanner().then(res => {
-			console.log(res, 'res=====')
+			// console.log(res, 'res=====')
 			bannerList.value = res.bannerList
 		})
 		getHomeList().then(res => {
 			flowList.value = res
-			console.log(res, '------hoemlist')
+			// console.log(res, '------hoemlist')
 		})
 	})
 	
+	onReachBottom(() => {
+		console.log('触底')
+		setTimeout(() => {
+			console.log('1')
+			addRandomData()
+		},1000)
+	})
+
+	onPageScroll((e) => {
+		if(e.scrollTop > 600) {
+			showTopIcon.value = true
+		} else {
+			showTopIcon.value = false
+		}
+	})
 	
+	const topTop = () => {
+		uni.pageScrollTo({
+			scrollTop: 0,
+			duration: 300
+		})
+	}
+		
+	// 模拟后段返回的数据
+	const addRandomData = () => {
+		for(let i = 0; i < 10; i++) {
+			let index = uni.$u.random(0,flowList.value.length - 1)
+			let item = JSON.parse(JSON.stringify(flowList.value[index]))
+			item.id = uni.$u.guid()
+			flowList.value.push(item)
+		}
+	}
 	
 </script>
 
@@ -128,6 +165,19 @@
 				text-align: center;
 				padding: 4rpx 10rpx;
 			}
+		}
+		.topClass {
+			position: fixed;
+			bottom: 120rpx;
+			right: 30rpx;
+			background-color: rgb(0, 0, 0, .5);
+			padding: 20px;
+			width: 44rpx;
+			height: 44rpx;
+			border-radius: 40rpx;
+			display: flex;
+			justify-content: center;
+			align-items: center;
 		}
 	}
 </style>
