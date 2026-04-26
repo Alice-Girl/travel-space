@@ -3,7 +3,7 @@
 		<view class="topBox">
 			<view class="setBox">
 				<view class="set-left">
-					<uni-icons type="caledar" size="30" color="#fff"></uni-icons>
+					<uni-icons type="calendar" size="30" color="#fff"></uni-icons>
 					<view class="txt">签到</view>
 				</view>
 				<view class="set-right">
@@ -11,12 +11,78 @@
 					<uni-icons type="chat" size="30" color="#fff"></uni-icons>
 				</view>
 			</view>
+			<view class="users" @click="setFun">
+				<view class="u-top">
+					<template v-if="!userInfo.nickName">
+						<image
+							src="/static/tt.jpg"
+							mode="aspectFill"
+						>
+						</image>
+						<view class="tit">注册/登录</view>
+					</template>
+					<template v-else>
+						<image
+							:src="userInfo.avatarUrl"
+							mode="aspectFill"
+						>
+						</image>
+						<view class="tit">{{ userInfo.nickName }}</view>
+					</template>
+				</view>
+				<view class="u-bottom">
+					<view class="u-item">
+						<view class="u-num">12</view>
+						<view class="u-tit">点赞</view>
+					</view>
+					<view class="u-item">
+						<view class="u-num">12</view>
+						<view class="u-tit">喜欢</view>
+					</view>
+					<view class="u-item">
+						<view class="u-num">12</view>
+						<view class="u-tit">浏览</view>
+					</view>
+					<view class="u-item">
+						<view class="u-num">12</view>
+						<view class="u-tit">收藏</view>
+					</view>
+				</view>
+			</view>
 		</view>
 		<view class="listBox"></view>
 	</view>
 </template>
 
-<caption></caption>
+<script setup>
+	import {ref, reactive} from 'vue'
+		import { onLoad } from '@dcloudio/uni-app'
+	const userInfo = reactive({
+		nickName: '',
+		avatarUrl: ''
+	})
+	
+	const setFun= () => {
+		// 确认提醒
+		uni.showModal({
+			title: '温馨提示',
+			content: '亲，授权微信登录后才能正常的使用小程序',
+			success(res) {
+				if(res.confirm) {
+					uni.getUserProfile({
+						desc: '获取用户头像和昵称',
+						success(res){
+							console.log(res, '----res--')
+						},
+						fail(err) {
+							console.log(err, '--err--')
+						}
+					})
+				}
+			}
+		})
+	}
+</script>
 
 <style lang="scss" scoped>
 .content{
@@ -54,6 +120,51 @@
 		.txt{
 			color: #ffff;
 			font-size: 30rpx;
+		}
+	}
+	.users{
+		margin-top: 35rpx;
+		padding: 30rpx;
+		box-sizing: border-box;
+		height: 280rpx;
+		background-color: #fff;
+		box-shadow: 1rpx 10rpx 20rpx #ececec;
+		border-radius: 16rpx;
+		.u-top{
+			display: flex;
+			justify-content: flex-strat;
+			align-items: center;
+			margin-bottom: 30rpx;
+			image{
+				width: 100rpx;
+				height: 100rpx;
+				border-radius: 50%;
+				margin-right: 20rpx;
+			}
+			.tit {
+				font-size: 30rpx;
+				font-weight: 700;
+				color: #333;
+			}
+		}
+		.u-bottom{
+			display: flex;
+			justify-content: space-around;
+			align-items: center;
+			.u-item{
+				text-align: center;
+				.u-num {
+					color: #000;
+					font-size: 22rpx;
+					font-weight: 700;
+				}
+				.u-tit{
+					color: #757575;
+					font-size: 26rpx;
+					margin-top: 10rpx;
+				}
+				
+			}
 		}
 	}
 }

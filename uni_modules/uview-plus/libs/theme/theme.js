@@ -77,6 +77,42 @@ let cachedLightThemeColors = null
 let hasRegisterThemeListener = false
 let currentThemePreference = THEME_MODE_SYSTEM
 
+function hasActivePageContext() {
+    if (typeof getCurrentPages !== 'function') return true
+    const pages = getCurrentPages()
+    return Array.isArray(pages) && pages.length > 0
+}
+
+function isPageNotFoundError(err) {
+    const errMsg = err?.errMsg || err?.message || ''
+    return typeof errMsg === 'string' && errMsg.indexOf('page not found') !== -1
+}
+
+function callPageUIApi(methodName, options = {}) {
+    if (typeof uni === 'undefined') return
+    const api = uni[methodName]
+    if (typeof api !== 'function' || !hasActivePageContext()) return
+    const onFail = options.fail
+    let hasHandledFail = false
+    const handleFail = (err) => {
+        if (hasHandledFail) return
+        hasHandledFail = true
+        if (isPageNotFoundError(err)) return
+        if (typeof onFail === 'function') {
+            onFail(err)
+            return
+        }
+        console.warn(`[uview-plus] ${methodName} failed`, err)
+    }
+    const task = api({
+        ...options,
+        fail: handleFail
+    })
+    if (task && typeof task.catch === 'function') {
+        task.catch(handleFail)
+    }
+}
+
 function normalizeThemeMode(theme = 'light') {
     return theme === 'dark' ? 'dark' : 'light'
 }
@@ -302,7 +338,7 @@ function applyNativeThemeUI(mode, themeColors) {
     const isDark = normalizeThemeMode(mode) === 'dark'
     const pageBg = themeColors?.bgColor || (isDark ? '#1f1f1f' : '#f3f4f6')
     if (typeof uni.setNavigationBarColor === 'function') {
-        uni.setNavigationBarColor({
+        callPageUIApi('setNavigationBarColor', {
             frontColor: isDark ? '#ffffff' : '#000000',
             backgroundColor: pageBg,
             animation: {
@@ -312,7 +348,7 @@ function applyNativeThemeUI(mode, themeColors) {
         })
     }
     if (typeof uni.setBackgroundColor === 'function') {
-        uni.setBackgroundColor({
+        callPageUIApi('setBackgroundColor', {
             backgroundColor: pageBg,
             backgroundColorTop: pageBg,
             backgroundColorBottom: pageBg

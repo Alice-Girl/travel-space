@@ -1,7 +1,7 @@
 <template>
 	<view class="content">
 		<up-search placeholder="搜索景点" bg-color="#e3e3e3" v-model="keyword"></up-search>
-	  <up-swiper v-if="bannerList.length" :list=" bannerList" keyName="image" showTitle radius="8" autoplay="true" height="160"></up-swiper>
+	  <up-swiper v-if="bannerList.length" :list=" bannerList" keyName="image" showTitle radius="8" autoplay height="160"></up-swiper>
 		 <up-notice-bar text="项目数据仅展示,非真实数据!"></up-notice-bar>
 		 <view class="list">
 			 <up-waterfall v-model="flowList" ref="uWaterfallRef">

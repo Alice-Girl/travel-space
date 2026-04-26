@@ -173,6 +173,39 @@ export const mixin = defineMixin({
         upIsPageScope() {
             return !!(this.$page || this.route || this.$options?.mpType === 'page')
         },
+        upHasActivePageContext() {
+            if (typeof getCurrentPages !== 'function') return true
+            const pages = getCurrentPages()
+            return Array.isArray(pages) && pages.length > 0
+        },
+        upIsPageNotFoundError(err) {
+            const errMsg = err?.errMsg || err?.message || ''
+            return typeof errMsg === 'string' && errMsg.indexOf('page not found') !== -1
+        },
+        upCallPageUIApi(methodName, options = {}) {
+            if (typeof uni === 'undefined') return
+            const api = uni[methodName]
+            if (typeof api !== 'function' || !this.upHasActivePageContext()) return
+            const onFail = options.fail
+            let hasHandledFail = false
+            const handleFail = (err) => {
+                if (hasHandledFail) return
+                hasHandledFail = true
+                if (this.upIsPageNotFoundError(err)) return
+                if (typeof onFail === 'function') {
+                    onFail(err)
+                    return
+                }
+                console.warn(`[uview-plus] ${methodName} failed`, err)
+            }
+            const task = api({
+                ...options,
+                fail: handleFail
+            })
+            if (task && typeof task.catch === 'function') {
+                task.catch(handleFail)
+            }
+        },
         upHasProp(propName) {
             const vnodeProps = this.$?.vnode?.props || {}
             const kebabName = propName.replace(/[A-Z]/g, (s) => `-${s.toLowerCase()}`)
@@ -224,7 +257,7 @@ export const mixin = defineMixin({
             const isDark = this.upThemeIsDark
             const pageBg = this.$u?.color?.bgColor || (isDark ? '#1f1f1f' : '#f3f4f6')
             if (typeof uni.setNavigationBarColor === 'function') {
-                uni.setNavigationBarColor({
+                this.upCallPageUIApi('setNavigationBarColor', {
                     frontColor: isDark ? '#ffffff' : '#000000',
                     backgroundColor: pageBg,
                     animation: {
@@ -234,7 +267,7 @@ export const mixin = defineMixin({
                 })
             }
             if (typeof uni.setBackgroundColor === 'function') {
-                uni.setBackgroundColor({
+                this.upCallPageUIApi('setBackgroundColor', {
                     backgroundColor: pageBg,
                     backgroundColorTop: pageBg,
                     backgroundColorBottom: pageBg
