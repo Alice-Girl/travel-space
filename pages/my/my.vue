@@ -51,12 +51,30 @@
 			</view>
 		</view>
 		<view class="listBox"></view>
+		<!-- 弹出层 -->
+		<up-popup :show="show" @close="close" @open="open" closeable  round="20">
+			<view class="popup">
+				<view class="title"></view>
+				<view class="flex">
+					<view class="label">获取用户头像：</view>
+					<button class="avatar-warpper" open-type="chooseAvatar" @chooseavatar="onChooseavatar">
+						<image class="avatar" :src="userInfo.avatarUrl"></image>
+					</button>
+				</view>
+				<view class="flex">
+					<view class="label">获取用户昵称：</view>
+					<input @input="changeName" type="nickname"/>
+				</view>
+				<button type="primary" @click="userSubmit">确定</button>
+			</view>
+		</up-popup>
 	</view>
 </template>
 
 <script setup>
 	import {ref, reactive} from 'vue'
-		import { onLoad } from '@dcloudio/uni-app'
+	import { onLoad } from '@dcloudio/uni-app'
+	import { login, getUserInfo } from '../../api/api.js'
 	const userInfo = reactive({
 		nickName: '',
 		avatarUrl: ''
@@ -69,19 +87,55 @@
 			content: '亲，授权微信登录后才能正常的使用小程序',
 			success(res) {
 				if(res.confirm) {
-					uni.getUserProfile({
-						desc: '获取用户头像和昵称',
-						success(res){
-							console.log(res, '----res--')
-						},
-						fail(err) {
-							console.log(err, '--err--')
+					// uni.getUserProfile({
+					// 	desc: '获取用户头像和昵称',
+					// 	success(res){
+					// 		console.log(res, '----res--')
+					// 	},
+					// 	fail(err) {
+					// 		console.log(err, '--err--')
+					// 	}
+					// })
+					
+					// login
+					uni.login({
+						success: async (data) => {
+							const { token } = await login(data.code)
+							console.log(data, '-data---')
+							console.log(token, 'token')
+							// token 获取用户信息
+							uni.setStorageSync('token', token)
+							// 根据token获取用户信息
+							const { avatarUrl, nickName }  = await getUserInfo()
+							console.log(avatarUrl, nickName)
+							show.value = true
 						}
 					})
 				}
 			}
 		})
 	}
+
+	const show = ref(false)
+	
+	const close = () => {
+		console.log('close')
+		show.value = false
+	}
+	const userSubmit = () => {
+		show.value = false
+	}
+	const onChooseavatar = (e) => {
+		console.log('onChooseavatar')
+		userInfo.avatarUrl = e.detail.avatarUrl
+		console.log(e, '---shiian--')
+	}
+	const changeName = () => {
+		console.log('changeName')
+		userInfo.nickName = e.detail.nickName
+		console.log(e, 'changeName')
+	}
+	
 </script>
 
 <style lang="scss" scoped>
@@ -163,8 +217,34 @@
 					font-size: 26rpx;
 					margin-top: 10rpx;
 				}
-				
 			}
+		}
+	}
+	.popup{
+		padding: 20rpx 20rpx 0 0;
+		.title {
+			margin-bottom: 20rpx;
+			font-size: 40rpx;
+			text-align: center;
+		}
+		.flex{
+			display: flex;
+			justify-content: flex-start;
+			align-items: center;
+			border-bottom: 1px solid #f5f5f5;
+			padding: 24rpx 0;
+		}
+		image {
+			width: 70rpx;
+			height: 70rpx;
+		}
+		.avatar-warpper {
+			border: none;
+			border-radius: 10rpx;
+			width: 70rpx;
+			height: 70rpx;
+			margin-left: 20rpx;
+			padding: 0;
 		}
 	}
 }
