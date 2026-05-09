@@ -50,11 +50,21 @@
 				</view>
 			</view>
 		</view>
-		<view class="listBox"></view>
+		<view class="listBox">
+			<view class="lists">
+				<uni-list>
+					<uni-list-item :show-extra-icon="true" :extra-icon="extraIcon1" showArrow title="个人信息" clickable></uni-list-item>
+					<uni-list-item :show-extra-icon="true" :extra-icon="extraIcon2" showArrow title="我的购物车" clickable></uni-list-item>
+					<uni-list-item :show-extra-icon="true" :extra-icon="extraIcon3" showArrow title="用户反馈" clickable></uni-list-item>
+					<uni-list-item :show-extra-icon="true" :extra-icon="extraIcon4" showArrow title="我的邮件" clickable></uni-list-item>
+					<uni-list-item :show-extra-icon="true" :extra-icon="extraIcon5" showArrow title="分享有礼" clickable></uni-list-item>
+				</uni-list>
+			</view>
+		</view>
 		<!-- 弹出层 -->
 		<up-popup :show="show" @close="close" @open="open" closeable  round="20">
 			<view class="popup">
-				<view class="title"></view>
+				<view class="title">获取您的昵称、头像</view>
 				<view class="flex">
 					<view class="label">获取用户头像：</view>
 					<button class="avatar-warpper" open-type="chooseAvatar" @chooseavatar="onChooseavatar">
@@ -65,7 +75,7 @@
 					<view class="label">获取用户昵称：</view>
 					<input @input="changeName" type="nickname"/>
 				</view>
-				<button type="primary" @click="userSubmit">确定</button>
+				<button size="default" type="primary" @click="userSubmit">确定</button>
 			</view>
 		</up-popup>
 	</view>
@@ -75,9 +85,49 @@
 	import {ref, reactive} from 'vue'
 	import { onLoad } from '@dcloudio/uni-app'
 	import { login, getUserInfo } from '../../api/api.js'
+import { jsonString } from '../../uni_modules/uview-plus/libs/function/test.js'
 	const userInfo = reactive({
 		nickName: '',
 		avatarUrl: ''
+	})
+	
+	onLoad(async() => {
+		// 面登录
+		if(uni.getStorageSync('token' && !uni.getStorageSync('userInfo'))){
+			const { avatarUrl, nickName }  = await getUserInfo()
+			userInfo.avatarUrl = avatarUrl
+			userInfo.nickName = nickName
+		}else if(uni.getStorageSync('token' && uni.getStorageSync('userInfo'))){
+			const { avatarUrl, nickName }  = await getUserInfo()
+			userInfo.avatarUrl = avatarUrl
+			userInfo.nickName = nickName
+		}
+	})
+	
+	const extraIcon1 = reactive({
+		color: '#666666',
+		size: '22',
+		type: 'auth'
+	})
+	const extraIcon2 = reactive({
+		color: '#666666',
+		size: '22',
+		type: 'cart'
+	})
+	const extraIcon3 = reactive({
+		color: '#666666',
+		size: '22',
+		type: 'chatboxes'
+	})
+	const extraIcon4 = reactive({
+		color: '#666666',
+		size: '22',
+		type: 'email'
+	})
+	const extraIcon5 = reactive({
+		color: '#666666',
+		size: '22',
+		type: 'gift'
 	})
 	
 	const setFun= () => {
@@ -101,13 +151,15 @@
 					uni.login({
 						success: async (data) => {
 							const { token } = await login(data.code)
-							console.log(data, '-data---')
-							console.log(token, 'token')
+							console.log(data, '-data-118--')
+							console.log(token, 'token---119')
 							// token 获取用户信息
 							uni.setStorageSync('token', token)
 							// 根据token获取用户信息
 							const { avatarUrl, nickName }  = await getUserInfo()
 							console.log(avatarUrl, nickName)
+							userInfo.avatarUrl = avatarUrl
+							userInfo.nickName = nickName
 							show.value = true
 						}
 					})
@@ -123,15 +175,16 @@
 		show.value = false
 	}
 	const userSubmit = () => {
+		uni.setStorageSync('userInfo', jsonString(userInfo))
 		show.value = false
 	}
 	const onChooseavatar = (e) => {
-		console.log('onChooseavatar')
+		console.log('onChooseavatar', e)
 		userInfo.avatarUrl = e.detail.avatarUrl
 		console.log(e, '---shiian--')
 	}
-	const changeName = () => {
-		console.log('changeName')
+	const changeName = (e) => {
+		console.log('changeName', e)
 		userInfo.nickName = e.detail.nickName
 		console.log(e, 'changeName')
 	}
@@ -221,13 +274,14 @@
 		}
 	}
 	.popup{
-		padding: 20rpx 20rpx 0 0;
+		padding: 20rpx;
+		border-radius: 20rpx 20rpx 0 0;
 		.title {
 			margin-bottom: 20rpx;
 			font-size: 40rpx;
 			text-align: center;
 		}
-		.flex{
+		.flex{ 
 			display: flex;
 			justify-content: flex-start;
 			align-items: center;
@@ -246,6 +300,13 @@
 			margin-left: 20rpx;
 			padding: 0;
 		}
+	}
+	.listBox{
+		min-height: 20rpx;
+		margin: -10rpx auto 0;
+		padding: 20rpx;
+		box-sizing: border-box;
+		border-radius: 12rpx;
 	}
 }
 </style>

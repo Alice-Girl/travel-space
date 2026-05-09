@@ -2,6 +2,8 @@
 	"easycom": {
 		"autoscan": true,
 		"custom": {
+			"^uni-list$": "@/uni_modules/uni-list/components/uni-list/uni-list.vue",
+			"^uni-list-item$": "@/uni_modules/uni-list/components/uni-list-item/uni-list-item.vue",
 			"^u--(.*)": "@/uni_modules/uview-plus/components/u-$1/u-$1.vue",
 			"^up-(.*)": "@/uni_modules/uview-plus/components/u-$1/u-$1.vue",
 			"^u-([^-].*)": "@/uni_modules/uview-plus/components/u-$1/u-$1.vue"
